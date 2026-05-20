@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ur" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen Chicken Stock Record</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3e;
+    --accent1: #e8a045; /* tikka orange */
+    --accent2: #5b8dee; /* fajita blue */
+    --accent3: #4ecba5; /* malai green */
+    --text: #e8e8f0;
+    --muted: #7a7d95;
+    --in: #4ecba5;
+    --out: #e85b5b;
+    --gold: #e8a045;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .header::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--gold);
+    margin: 0 auto 16px;
+    border-radius: 2px;
+  }
+  .header h1 {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  /* Summary Cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .summary-card.tikka::before { background: var(--accent1); }
+  .summary-card.fajita::before { background: var(--accent2); }
+  .summary-card.malai::before { background: var(--accent3); }
+
+  .summary-card .label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .summary-card .stock-num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .summary-card.tikka .stock-num { color: var(--accent1); }
+  .summary-card.fajita .stock-num { color: var(--accent2); }
+  .summary-card.malai .stock-num { color: var(--accent3); }
+  .summary-card .unit-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* Add Entry Form */
+  .form-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .form-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-title span { font-size: 1.2rem; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+  }
+  input, select {
+    width: 100%;
+    background: #12141f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--gold); }
+  select option { background: #1a1d27; }
+
+  .btn-add {
+    width: 100%;
+    padding: 12px;
+    background: var(--gold);
+    color: #0f1117;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+  .btn-add:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* Toggle unit */
+  .unit-toggle {
+    display: flex;
+    background: #12141f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .unit-toggle button {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .unit-toggle button.active {
+    background: var(--gold);
+    color: #0f1117;
+    font-weight: 700;
+  }
+
+  /* Records Table */
+  .records-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .records-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .records-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .filter-pills {
+    display: flex;
+    gap: 6px;
+  }
+  .pill {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    transition: all 0.2s;
+  }
+  .pill.active, .pill:hover { border-color: var(--gold); color: var(--gold); }
+
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+  thead tr { background: #12141f; }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(42,45,62,0.6);
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .badge.in { background: rgba(78,203,165,0.15); color: var(--in); }
+  .badge.out { background: rgba(232,91,91,0.15); color: var(--out); }
+
+  .type-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .type-dot.tikka { background: var(--accent1); }
+  .type-dot.fajita { background: var(--accent2); }
+  .type-dot.malai { background: var(--accent3); }
+
+  .qty-in { color: var(--in); font-weight: 600; }
+  .qty-out { color: var(--out); font-weight: 600; }
+
+  .del-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .del-btn:hover { border-color: var(--out); color: var(--out); }
+
+  .empty-msg {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .empty-msg .icon { font-size: 2rem; margin-bottom: 8px; }
+
+  /* Packet display */
+  .sub-unit { font-size: 0.7rem; color: var(--muted); }
+
+  /* Opening Stock Section */
+  .opening-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .opening-section .form-title { margin-bottom: 14px; }
+  .os-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .os-item label { margin-bottom: 4px; }
+  .os-item .type-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .os-item.tikka .type-name { color: var(--accent1); }
+  .os-item.fajita .type-name { color: var(--accent2); }
+  .os-item.malai .type-name { color: var(--accent3); }
+  .os-unit-toggle {
+    display: flex;
+    background: #12141f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .os-unit-toggle button {
+    flex: 1;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .os-unit-toggle button.active {
+    background: #2a2d3e;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .os-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+  .btn-os {
+    width: 100%;
+    padding: 11px;
+    background: #2a2d3e;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-os:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Opening stock badge in table */
+  .badge.opening { background: rgba(232,160,69,0.15); color: var(--gold); }
+
+  @media (max-width: 480px) {
+    .summary-grid { grid-template-columns: 1fr; gap: 8px; }
+    .os-grid { grid-template-columns: 1fr; }
+    .form-row.three { grid-template-columns: 1fr 1fr; }
+    .filter-pills { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍗 Kitchen Stock Record</h1>
+  <p>Chicken Tikka • Fajita • Malai — Date-wise In/Out</p>
+</div>
+
+<!-- Opening Stock Section -->
+<div class="opening-section">
+  <div class="form-title"><span>📦</span> Opening Stock Set Karein</div>
+
+  <div style="margin-bottom:10px">
+    <label>Opening Stock Unit</label>
+    <div class="os-unit-toggle">
+      <button class="active" id="osKgBtn" onclick="setOsUnit('kg')">KG</button>
+      <button id="osPktBtn" onclick="setOsUnit('packet')">Packet (1.5kg each)</button>
+    </div>
+  </div>
+
+  <div class="os-grid">
+    <div class="os-item tikka">
+      <div class="type-name">🟠 Tikka</div>
+      <label id="osLabelTikka">Qty (KG)</label>
+      <input type="number" id="osTikka" min="0" step="0.5" placeholder="0">
+    </div>
+    <div class="os-item fajita">
+      <div class="type-name">🔵 Fajita</div>
+      <label id="osLabelFajita">Qty (KG)</label>
+      <input type="number" id="osFajita" min="0" step="0.5" placeholder="0">
+    </div>
+    <div class="os-item malai">
+      <div class="type-name">🟢 Malai</div>
+      <label id="osLabelMalai">Qty (KG)</label>
+      <input type="number" id="osMalai" min="0" step="0.5" placeholder="0">
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px">
+    <label>Opening Stock Date</label>
+    <input type="date" id="osDate">
+  </div>
+
+  <button class="btn-os" onclick="saveOpeningStock()">💾 Opening Stock Save Karein</button>
+  <div class="os-note" id="osStatus">⚠️ Pehli baar use karne se pehle opening stock zaroor set karein</div>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-grid" id="summaryGrid">
+  <div class="summary-card tikka">
+    <div class="label">Tikka Stock</div>
+    <div class="stock-num" id="stockTikka">0</div>
+    <div class="unit-label" id="unitTikka">0 packets</div>
+  </div>
+  <div class="summary-card fajita">
+    <div class="label">Fajita Stock</div>
+    <div class="stock-num" id="stockFajita">0</div>
+    <div class="unit-label" id="unitFajita">0 packets</div>
+  </div>
+  <div class="summary-card malai">
+    <div class="label">Malai Stock</div>
+    <div class="stock-num" id="stockMalai">0</div>
+    <div class="unit-label" id="unitMalai">0 packets</div>
+  </div>
+</div>
+
+<!-- Add Entry Form -->
+<div class="form-section">
+  <div class="form-title"><span>➕</span> Naya Record Add Karein</div>
+
+  <div class="form-row">
+    <div>
+      <label>Date</label>
+      <input type="date" id="entryDate">
+    </div>
+    <div>
+      <label>Type</label>
+      <select id="entryType">
+        <option value="tikka">🟠 Tikka</option>
+        <option value="fajita">🔵 Fajita</option>
+        <option value="malai">🟢 Malai</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div>
+      <label>In / Out</label>
+      <select id="entryDirection">
+        <option value="in">📥 IN (Aaya)</option>
+        <option value="out">📤 OUT (Gaya)</option>
+      </select>
+    </div>
+    <div>
+      <label>Unit</label>
+      <div class="unit-toggle">
+        <button class="active" id="btnKg" onclick="setUnit('kg')">KG</button>
+        <button id="btnPkt" onclick="setUnit('packet')">Packet</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div>
+      <label>Quantity (<span id="unitLabel">KG</span>)</label>
+      <input type="number" id="entryQty" min="0.1" step="0.5" placeholder="e.g. 3">
+    </div>
+    <div>
+      <label>Note (Optional)</label>
+      <input type="text" id="entryNote" placeholder="e.g. Supplier name...">
+    </div>
+  </div>
+
+  <button class="btn-add" onclick="addEntry()">✅ Record Add Karein</button>
+</div>
+
+<!-- Records Table -->
+<div class="records-section">
+  <div class="records-header">
+    <div class="records-title">📋 Records</div>
+    <div class="filter-pills">
+      <button class="pill active" onclick="setFilter('all', this)">Sab</button>
+      <button class="pill" onclick="setFilter('tikka', this)">Tikka</button>
+      <button class="pill" onclick="setFilter('fajita', this)">Fajita</button>
+      <button class="pill" onclick="setFilter('malai', this)">Malai</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>In/Out</th>
+          <th>Qty (KG)</th>
+          <th>Packets</th>
+          <th>Note</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="recordsBody">
+        <tr><td colspan="7" class="empty-msg"><div class="icon">📭</div>Abhi koi record nahi — upar se add karein</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const PACKET_KG = 1.5;
+  let records = JSON.parse(localStorage.getItem('chickenRecords') || '[]');
+  let openingStock = JSON.parse(localStorage.getItem('chickenOpeningStock') || '{"tikka":0,"fajita":0,"malai":0,"date":""}');
+  let activeFilter = 'all';
+  let selectedUnit = 'kg';
+  let osUnit = 'kg';
+
+  // Set today's date defaults
+  document.getElementById('entryDate').valueAsDate = new Date();
+  document.getElementById('osDate').valueAsDate = new Date();
+
+  // Load existing opening stock into form
+  function loadOsForm() {
+    document.getElementById('osTikka').value = openingStock.tikka || '';
+    document.getElementById('osFajita').value = openingStock.fajita || '';
+    document.getElementById('osMalai').value = openingStock.malai || '';
+    if (openingStock.date) document.getElementById('osDate').value = openingStock.date;
+    if (openingStock.tikka || openingStock.fajita || openingStock.malai) {
+      document.getElementById('osStatus').textContent =
+        '✅ Opening stock set hai: ' + openingStock.date + ' — Edit karke dobara save kar sakte ho';
+      document.getElementById('osStatus').style.color = 'var(--in)';
+    }
+  }
+
+  function setOsUnit(u) {
+    osUnit = u;
+    const lbl = u === 'kg' ? 'Qty (KG)' : 'Qty (Packets)';
+    document.getElementById('osLabelTikka').textContent = lbl;
+    document.getElementById('osLabelFajita').textContent = lbl;
+    document.getElementById('osLabelMalai').textContent = lbl;
+    document.getElementById('osKgBtn').classList.toggle('active', u === 'kg');
+    document.getElementById('osPktBtn').classList.toggle('active', u === 'packet');
+    // Clear inputs on unit switch
+    document.getElementById('osTikka').value = '';
+    document.getElementById('osFajita').value = '';
+    document.getElementById('osMalai').value = '';
+  }
+
+  function saveOpeningStock() {
+    const tikkaRaw = parseFloat(document.getElementById('osTikka').value) || 0;
+    const fajitaRaw = parseFloat(document.getElementById('osFajita').value) || 0;
+    const malaiRaw = parseFloat(document.getElementById('osMalai').value) || 0;
+    const date = document.getElementById('osDate').value;
+
+    if (!date) { alert('Opening stock ki date zaroor dalein!'); return; }
+
+    const mul = osUnit === 'packet' ? PACKET_KG : 1;
+    openingStock = {
+      tikka: tikkaRaw * mul,
+      fajita: fajitaRaw * mul,
+      malai: malaiRaw * mul,
+      date
+    };
+
+    localStorage.setItem('chickenOpeningStock', JSON.stringify(openingStock));
+    document.getElementById('osStatus').textContent = '✅ Opening stock save ho gaya! Date: ' + date;
+    document.getElementById('osStatus').style.color = 'var(--in)';
+    render();
+  }
+
+  function setUnit(u) {
+    selectedUnit = u;
+    document.getElementById('unitLabel').textContent = u === 'kg' ? 'KG' : 'Packet (1.5kg)';
+    document.getElementById('btnKg').classList.toggle('active', u === 'kg');
+    document.getElementById('btnPkt').classList.toggle('active', u === 'packet');
+  }
+
+  function addEntry() {
+    const date = document.getElementById('entryDate').value;
+    const type = document.getElementById('entryType').value;
+    const direction = document.getElementById('entryDirection').value;
+    const qtyRaw = parseFloat(document.getElementById('entryQty').value);
+    const note = document.getElementById('entryNote').value.trim();
+
+    if (!date || isNaN(qtyRaw) || qtyRaw <= 0) {
+      alert('Date aur Quantity zaroori hai!');
+      return;
+    }
+
+    const kg = selectedUnit === 'packet' ? qtyRaw * PACKET_KG : qtyRaw;
+    records.unshift({ id: Date.now(), date, type, direction, kg, note });
+    save();
+    render();
+    document.getElementById('entryQty').value = '';
+    document.getElementById('entryNote').value = '';
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Yeh record delete karein?')) return;
+    records = records.filter(r => r.id !== id);
+    save();
+    render();
+  }
+
+  function save() {
+    localStorage.setItem('chickenRecords', JSON.stringify(records));
+  }
+
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    render();
+  }
+
+  function calcStock(type) {
+    const opening = openingStock[type] || 0;
+    const movement = records
+      .filter(r => r.type === type)
+      .reduce((sum, r) => sum + (r.direction === 'in' ? r.kg : -r.kg), 0);
+    return opening + movement;
+  }
+
+  function fmt(kg) { return kg.toFixed(1) + ' kg'; }
+  function pkt(kg) { return (kg / PACKET_KG).toFixed(1) + ' pkts'; }
+
+  function render() {
+    // Summary cards
+    const types = ['tikka', 'fajita', 'malai'];
+    const ids = ['Tikka', 'Fajita', 'Malai'];
+    types.forEach((t, i) => {
+      const s = calcStock(t);
+      document.getElementById('stock' + ids[i]).textContent = fmt(s);
+      document.getElementById('unit' + ids[i]).textContent = pkt(s);
+    });
+
+    // Table — show opening stock rows + movement records
+    const typeLabel = { tikka: 'Tikka', fajita: 'Fajita', malai: 'Malai' };
+
+    // Build opening stock rows
+    let osRows = [];
+    if (openingStock.date) {
+      ['tikka', 'fajita', 'malai'].forEach(t => {
+        if ((openingStock[t] || 0) > 0) {
+          osRows.push({ id: 'os_' + t, date: openingStock.date, type: t, direction: 'opening', kg: openingStock[t], note: 'Opening Stock' });
+        }
+      });
+    }
+
+    const allRows = [...osRows, ...records];
+    const filtered = activeFilter === 'all' ? allRows : allRows.filter(r => r.type === activeFilter);
+    const tbody = document.getElementById('recordsBody');
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-msg"><div class="icon">📭</div>Koi record nahi — upar se add karein</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(r => {
+      const isOpening = r.direction === 'opening';
+      const badge = isOpening
+        ? `<span class="badge opening">📦 OPENING</span>`
+        : r.direction === 'in'
+          ? `<span class="badge in">📥 IN</span>`
+          : `<span class="badge out">📤 OUT</span>`;
+      const qtyClass = isOpening ? 'qty-in' : r.direction === 'in' ? 'qty-in' : 'qty-out';
+      const sign = isOpening ? '' : r.direction === 'in' ? '+' : '-';
+      const delBtn = isOpening ? '' : `<button class="del-btn" onclick="deleteEntry(${r.id})">✕</button>`;
+      return `
+        <tr>
+          <td>${r.date}</td>
+          <td><span class="type-dot ${r.type}"></span>${typeLabel[r.type]}</td>
+          <td>${badge}</td>
+          <td class="${qtyClass}">${sign}${r.kg.toFixed(1)} kg</td>
+          <td class="sub-unit">${(r.kg / PACKET_KG).toFixed(2)} pkt</td>
+          <td style="color:var(--muted);font-size:0.78rem">${r.note || '—'}</td>
+          <td>${delBtn}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  loadOsForm();
+  render();
+</script>
+</body>
+</html>
